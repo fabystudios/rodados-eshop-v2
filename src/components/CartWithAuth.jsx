@@ -4,19 +4,16 @@ import { useAuth } from '../contexts/AuthContext';
 import Cart from './Cart';
 import Login from './Login';
 import Checkout from '../pages/Checkout';
+import { useCarrito } from "../contexts/CarritoContext";
 
 const CartWithAuth = ({ 
   open, 
-  onClose, 
-  items, 
-  increaseQty, 
-  decreaseQty, 
-  removeItem, 
-  clearCart 
+  onClose 
 }) => {
   const { isAuthenticated } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  const { cartItems, increaseQty, decreaseQty, removeItem, clearCart } = useCarrito();
 
   // Función que se ejecuta cuando se hace click en COMPRAR
   const handlePurchaseClick = useCallback(() => {
@@ -51,7 +48,7 @@ const CartWithAuth = ({
       <Cart
         open={open}
         onClose={onClose}
-        items={items}
+        items={cartItems}
         increaseQty={increaseQty}
         decreaseQty={decreaseQty}
         removeItem={removeItem}
@@ -67,7 +64,7 @@ const CartWithAuth = ({
       
       {showCheckout && (
         <Checkout 
-          cartItems={items}
+          cartItems={cartItems}
           clearCart={clearCart}
           onClose={handleCheckoutClose}
         />

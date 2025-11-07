@@ -2,9 +2,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import Login from './Login';
+import { Navigate, useLocation } from 'react-router-dom';
+import { Box, CircularProgress } from '@mui/material';
 
 const ProtectedRoute = ({ children, fallback }) => {
   const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
   const [showLogin, setShowLogin] = useState(false);
 
   // Mostrar loading mientras se verifica autenticación

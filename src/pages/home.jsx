@@ -23,8 +23,10 @@ import mascotaImage from "../assets/images/mascota2.png";
 import spinnerImage from "../assets/spinner.png";
 import StarIcon from "@mui/icons-material/Star";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
+import { useCarrito } from "../contexts/CarritoContext";
 
-export default function Home({ onAddToCart, cartItems = [] }) {
+export default function Home() {
+  const { addToCart, cartItems } = useCarrito();
   const navigate = useNavigate();
   const theme = useTheme();
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -74,14 +76,21 @@ export default function Home({ onAddToCart, cartItems = [] }) {
     }}>
       {/* Hero Section */}
       <Container maxWidth="xl" sx={{ pt: { xs: 4, md: 8 }, pb: 6 }}>
-        <Grid container spacing={{ xs: 2, md: 2 }} alignItems="center" sx={{ minHeight: { md: '500px' } }}>
+        <Grid 
+          container 
+          spacing={{ xs: 2, md: 2 }} 
+          alignItems="center" 
+          justifyContent="center" // ← Agregado
+          sx={{ minHeight: { md: '500px' } }}
+        >
           <Grid item xs={12} md={6}>
             <Box sx={{ 
               textAlign: { xs: 'center', md: 'left' },
-              pr: { md: 1 }, // Menos padding derecho para acercar al conejito
+              pr: { md: 1 },
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
+              alignItems: { xs: 'center', md: 'flex-start' }, // ← Agregado
               height: '100%'
             }}>
               <Chip 
@@ -107,7 +116,8 @@ export default function Home({ onAddToCart, cartItems = [] }) {
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   mb: 2,
-                  lineHeight: 1.1
+                  lineHeight: 1.1,
+                  textAlign: { xs: 'center', md: 'left' } // ← Agregado
                 }}
               >
                 Rodados eShop
@@ -119,7 +129,8 @@ export default function Home({ onAddToCart, cartItems = [] }) {
                   mb: 3,
                   fontSize: { xs: '1.1rem', sm: '1.2rem', md: '1.1rem', lg: '1.4rem' },
                   lineHeight: 1.2,
-                  fontWeight: 500
+                  fontWeight: 500,
+                  textAlign: { xs: 'center', md: 'left' } // ← Agregado
                 }}
               >
                 Tu destino premium
@@ -132,12 +143,17 @@ export default function Home({ onAddToCart, cartItems = [] }) {
                   color: theme.palette.mode === 'dark' ? '#b0b0b0' : '#666',
                   mb: 4,
                   fontSize: { xs: '0.95rem', sm: '1rem', md: '0.9rem', lg: '1rem' },
-                  lineHeight: 1.3
+                  lineHeight: 1.3,
+                  textAlign: { xs: 'center', md: 'left' } // ← Agregado
                 }}
               >
                 Calidad excepcional y servicio personalizado.
               </Typography>
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+              <Stack 
+                direction={{ xs: 'column', sm: 'row' }} 
+                spacing={2}
+                sx={{ width: { xs: '100%', sm: 'auto' } }} // ← Agregado
+              >
                 <Button
                   variant="contained"
                   size="large"
@@ -152,6 +168,7 @@ export default function Home({ onAddToCart, cartItems = [] }) {
                     fontSize: '1.1rem',
                     fontWeight: 'bold',
                     transition: 'all 0.3s ease',
+                    width: { xs: '100%', sm: 'auto' }, // ← Agregado
                     '&:hover': {
                       transform: 'translateY(-2px)',
                       boxShadow: '0 12px 24px rgba(76, 175, 80, 0.4)',
@@ -175,6 +192,7 @@ export default function Home({ onAddToCart, cartItems = [] }) {
                     fontSize: '1.1rem',
                     fontWeight: 'bold',
                     transition: 'all 0.3s ease',
+                    width: { xs: '100%', sm: 'auto' }, // ← Agregado
                     '&:hover': {
                       borderWidth: 2,
                       borderColor: '#1976d2',
@@ -196,12 +214,15 @@ export default function Home({ onAddToCart, cartItems = [] }) {
               justifyContent: 'center',
               alignItems: 'center',
               height: '100%',
-              px: { md: 3 } // Padding horizontal para centrarlo mejor en su espacio
+              minHeight: { xs: 300, sm: 350 }, // ← Agregado: altura mínima
+              px: { xs: 2, md: 3 }
             }}>
               <Box sx={{
                 position: 'relative',
                 display: 'inline-block',
-                animation: 'float 3s ease-in-out infinite'
+                animation: 'float 3s ease-in-out infinite',
+                width: '100%', // ← Agregado
+                maxWidth: { xs: 280, sm: 320, md: 350, lg: 400, xl: 420 }
               }}>
                 <Box
                   component="img"
@@ -209,14 +230,9 @@ export default function Home({ onAddToCart, cartItems = [] }) {
                   alt="Mascota Rodados"
                   sx={{
                     width: "100%",
-                    maxWidth: { 
-                      xs: 280, 
-                      sm: 320, 
-                      md: 350, 
-                      lg: 400, 
-                      xl: 420 
-                    },
                     height: "auto",
+                    display: 'block', // ← Agregado
+                    margin: '0 auto', // ← Agregado
                     filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.2))'
                   }}
                 />
@@ -467,7 +483,7 @@ export default function Home({ onAddToCart, cartItems = [] }) {
                           variant="contained"
                           fullWidth
                           startIcon={<AddShoppingCartIcon />}
-                          onClick={() => onAddToCart(product)}
+                          onClick={() => addToCart(product)}
                           sx={{
                             background: 'linear-gradient(45deg, #4CAF50, #81C784)',
                             borderRadius: '15px',

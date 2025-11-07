@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import StyledButton from "../components/StyledButton";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import { useCarrito } from "../contexts/CarritoContext"; // ← Cambiado a "contexts"
 
 import {
   Box,
@@ -18,18 +18,21 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import Cart from "../components/Cart";
 
-export default function ProductDetail({
-  onAddToCart,
-  cartItems,
-  increaseQty,
-  decreaseQty,
-  removeItem,
-  clearCart,
-}) {
+export default function ProductDetail() {
   const { id } = useParams();
   const theme = useTheme();
   const [product, setProduct] = useState(null);
   const [cartOpen, setCartOpen] = useState(false);
+  
+  // Usar el contexto del carrito en lugar de props
+  const {
+    cartItems,
+    addToCart,
+    increaseQty,
+    decreaseQty,
+    removeItem,
+    clearCart
+  } = useCarrito();
 
   // Función para obtener la cantidad de un producto en el carrito
   const getCartQuantity = (productId) => {
@@ -215,10 +218,9 @@ export default function ProductDetail({
             </Typography>
 
           <Box sx={{ mt: 4 }}>
-            {/* Botón Agregar al Carrito - Responsive y consistente */}
             <StyledButton
               variant="contained"
-              onClick={() => onAddToCart(product)}
+              onClick={() => addToCart(product)}
               fullWidth
               sx={{
                 mt: "auto",

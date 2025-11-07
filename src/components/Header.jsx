@@ -18,43 +18,35 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import HomeIcon from "@mui/icons-material/Home";
 import CloseIcon from "@mui/icons-material/Close";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 import { useAuth } from "../contexts/AuthContext";
 import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
-import Login from "./Login";
 import logoPpal from "../assets/logo-ppal.png";
 import logoBackup from "../assets/logo-backup.png";
 import textoMarca from "../assets/texto-marca.png";
+import { useCarrito } from "../contexts/CarritoContext";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
-export default function Header({ onCartClick, cartItems = [] }) {
+export default function Header({ onCartClick }) {
   const theme = useTheme();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, isAdmin } = useAuth();
+  const { getCartCount } = useCarrito();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
-  const location = useLocation(); // 👈 detecta ruta activa
-  
-  // Calcular total de unidades en el carrito (como MercadoLibre)
-  const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
   const handleUserIconClick = () => {
-    console.log('🔍 [DEBUG] User icon clicked - Auth state:', {
-      isAuthenticated: isAuthenticated(),
-      user: user,
-      userAgent: navigator.userAgent.includes('Mobile') ? 'Mobile' : 'Desktop'
-    });
-    
     if (isAuthenticated()) {
-      console.log('🚪 [DEBUG] Logging out user:', user?.username);
       logout();
+      navigate("/");
     } else {
-      console.log('🔑 [DEBUG] Opening login modal');
-      setShowLogin(true);
+      navigate("/login"); // ← Redirige a la página de login
     }
   };
 
@@ -64,32 +56,39 @@ export default function Header({ onCartClick, cartItems = [] }) {
     { text: "Nosotros", path: "/nosotros" },
   ];
 
+  // Agregar Admin al menú si es administrador
+  const menuItems = isAdmin()
+    ? [...navItems, { text: "Admin", path: "/admin", icon: <AdminPanelSettingsIcon /> }]
+    : navItems;
+
   const drawer = (
-    <Box 
-      sx={{ 
+    <Box
+      sx={{
         width: 280,
         height: "100%",
-        background: theme.palette.mode === 'dark'
-          ? "linear-gradient(180deg, #1a237e 0%, #0d47a1 100%)"
-          : "linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%)",
+        background:
+          theme.palette.mode === "dark"
+            ? "linear-gradient(180deg, #1a237e 0%, #0d47a1 100%)"
+            : "linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%)",
         display: "flex",
-        flexDirection: "column"
+        flexDirection: "column",
       }}
     >
       {/* Header del drawer */}
-      <Box 
-        sx={{ 
-          background: theme.palette.mode === 'dark'
-            ? "linear-gradient(135deg, #7c4dff 0%, #4a148c 100%)"
-            : "linear-gradient(135deg, #59f720 0%, #108e1c 100%)",
+      <Box
+        sx={{
+          background:
+            theme.palette.mode === "dark"
+              ? "linear-gradient(135deg, #7c4dff 0%, #4a148c 100%)"
+              : "linear-gradient(135deg, #59f720 0%, #108e1c 100%)",
           p: 3,
           position: "relative",
           textAlign: "center",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
         }}
       >
         {/* Botón cerrar X igual que el carrito */}
-        <IconButton 
+        <IconButton
           onClick={handleDrawerToggle}
           sx={{
             position: "absolute",
@@ -104,7 +103,7 @@ export default function Header({ onCartClick, cartItems = [] }) {
               bgcolor: "rgba(255,255,255,0.2)",
               transform: "scale(1.1)",
             },
-            transition: "all 0.3s ease"
+            transition: "all 0.3s ease",
           }}
         >
           <CloseIcon sx={{ fontSize: 20 }} />
@@ -114,8 +113,10 @@ export default function Header({ onCartClick, cartItems = [] }) {
           component="img"
           src={logoPpal}
           alt="MiTienda Logo"
-          onError={(e) => {e.target.src = logoBackup}}
-          sx={{ 
+          onError={(e) => {
+            e.target.src = logoBackup;
+          }}
+          sx={{
             height: 65,
             filter: "drop-shadow(2px 2px 4px rgba(0,0,0,0.2))",
             transition: "transform 0.4s",
@@ -134,9 +135,26 @@ export default function Header({ onCartClick, cartItems = [] }) {
         />
       </Box>
 
+      {/* Theme Toggle - Movido ARRIBA de la lista */}
+      <Box sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 1,
+        p: 2,
+        borderBottom: theme.palette.mode === 'dark'
+          ? "1px solid rgba(255, 255, 255, 0.1)"
+          : "1px solid #dee2e6",
+      }}>
+        <Typography variant="body2" sx={{ color: "text.secondary", fontWeight: 500 }}>
+          Tema:
+        </Typography>
+        <ThemeToggle size="medium" />
+      </Box>
+
       {/* Lista de navegación */}
       <List sx={{ flexGrow: 1, pt: 2 }}>
-        {navItems.map((item) => (
+        {menuItems.map((item) => (
           <ListItem
             button
             key={item.text}
@@ -147,36 +165,60 @@ export default function Header({ onCartClick, cartItems = [] }) {
               mx: 2,
               mb: 1,
               borderRadius: "12px",
-              background: location.pathname === item.path 
-                ? theme.palette.mode === 'dark'
-                  ? "linear-gradient(90deg, #7c4dff, #4a148c)"
-                  : "linear-gradient(90deg, #59f720, #108e1c)" 
-                : "transparent",
-              color: location.pathname === item.path 
-                ? "white" 
-                : theme.palette.mode === 'dark' ? "#ffffff" : "#333333",
+              background:
+                location.pathname === item.path
+                  ? theme.palette.mode === "dark"
+                    ? "linear-gradient(90deg, #7c4dff, #4a148c)"
+                    : item.text === "Admin"
+                      ? "linear-gradient(90deg, #FFD700, #FFA000)"
+                      : "linear-gradient(90deg, #59f720, #108e1c)"
+                  : "transparent",
+              color:
+                location.pathname === item.path
+                  ? "white"
+                  : item.text === "Admin"
+                    ? "#FFD700"
+                    : theme.palette.mode === "dark"
+                    ? "#ffffff"
+                    : "#333333",
               transition: "all 0.3s ease",
               "&:hover": {
-                background: location.pathname === item.path 
-                  ? theme.palette.mode === 'dark'
-                    ? "linear-gradient(90deg, #7c4dff, #4a148c)"
-                    : "linear-gradient(90deg, #59f720, #108e1c)"
-                  : theme.palette.mode === 'dark'
+                background:
+                  location.pathname === item.path
+                    ? theme.palette.mode === "dark"
+                      ? "linear-gradient(90deg, #7c4dff, #4a148c)"
+                      : "linear-gradient(90deg, #59f720, #108e1c)"
+                    : theme.palette.mode === "dark"
                     ? "rgba(124, 77, 255, 0.1)"
                     : "rgba(89, 247, 32, 0.1)",
                 transform: "translateX(8px)",
-                boxShadow: theme.palette.mode === 'dark'
-                  ? "0 4px 12px rgba(124, 77, 255, 0.2)"
-                  : "0 4px 12px rgba(89, 247, 32, 0.2)"
+                boxShadow:
+                  theme.palette.mode === "dark"
+                    ? "0 4px 12px rgba(124, 77, 255, 0.2)"
+                    : "0 4px 12px rgba(89, 247, 32, 0.2)",
               },
               "& .MuiListItemIcon-root": {
-                color: location.pathname === item.path 
-                  ? "white" 
-                  : theme.palette.mode === 'dark' ? "#7c4dff" : "#59f720"
-              }
+                color:
+                  location.pathname === item.path
+                    ? "white"
+                    : theme.palette.mode === "dark"
+                    ? "#7c4dff"
+                    : "#59f720",
+              },
             }}
           >
-            {item.text === "Inicio" && (
+            {item.icon && (
+              <ListItemIcon
+                sx={{
+                  minWidth: "40px",
+                  transition: "transform 0.3s ease",
+                  color: item.text === "Admin" ? "#FFD700" : "inherit"
+                }}
+              >
+                {item.icon}
+              </ListItemIcon>
+            )}
+            {item.text === "Inicio" && !item.icon && (
               <ListItemIcon
                 sx={{
                   minWidth: "40px",
@@ -197,9 +239,9 @@ export default function Header({ onCartClick, cartItems = [] }) {
         ))}
       </List>
 
-      {/* Footer del drawer */}
-      <Box 
-        sx={{ 
+      {/* Footer del drawer - SIN theme toggle */}
+      <Box
+        sx={{
           p: 2,
           textAlign: "center",
           borderTop: theme.palette.mode === 'dark'
@@ -208,24 +250,13 @@ export default function Header({ onCartClick, cartItems = [] }) {
           background: theme.palette.mode === 'dark'
             ? "rgba(26, 35, 126, 0.9)"
             : "rgba(255,255,255,0.7)",
-          display: "flex",
-          flexDirection: "column",
-          gap: 2
         }}
       >
-        {/* Theme Toggle en drawer móvil */}
-        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 1 }}>
-          <Typography variant="body2" sx={{ color: "text.secondary", fontWeight: 500 }}>
-            Tema:
-          </Typography>
-          <ThemeToggle size="small" />
-        </Box>
-        
-        <Typography 
-          variant="caption" 
-          sx={{ 
+        <Typography
+          variant="caption"
+          sx={{
             color: "text.secondary",
-            fontWeight: 500 
+            fontWeight: 500
           }}
         >
           Rodados eShop © 2025
@@ -239,15 +270,23 @@ export default function Header({ onCartClick, cartItems = [] }) {
       <AppBar
         position="sticky"
         sx={{
-          background: theme.palette.mode === 'dark'
-            ? "linear-gradient(135deg, #7c4dff 0%, #4a148c 100%)"
-            : "linear-gradient(135deg, #59f720 0%, #108e1c 100%)",
-          boxShadow: theme.palette.mode === 'dark'
-            ? "0 4px 20px rgba(124, 77, 255, 0.3)"
-            : "0 4px 20px rgba(0, 102, 255, 0.3)",
+          background:
+            theme.palette.mode === "dark"
+              ? "linear-gradient(135deg, #7c4dff 0%, #4a148c 100%)"
+              : "linear-gradient(135deg, #59f720 0%, #108e1c 100%)",
+          boxShadow:
+            theme.palette.mode === "dark"
+              ? "0 4px 20px rgba(124, 77, 255, 0.3)"
+              : "0 4px 20px rgba(0, 102, 255, 0.3)",
         }}
       >
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Toolbar
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           {/* Logo izquierda */}
           <Box
             component={Link}
@@ -284,9 +323,9 @@ export default function Header({ onCartClick, cartItems = [] }) {
               py: 1,
               transition: "filter 0.2s",
               "&:hover": { filter: "brightness(1.3)" },
-              cursor: "pointer"
+              cursor: "pointer",
             }}
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
             <Box
               component="img"
@@ -307,7 +346,7 @@ export default function Header({ onCartClick, cartItems = [] }) {
                   color: "#fff",
                   display: "flex",
                   alignItems: "center",
-                  borderBottom: location.pathname === item.path ? "3px solid #ff9800" : "none", // 👈 barrita naranja
+                  borderBottom: location.pathname === item.path ? "3px solid #ff9800" : "none",
                   borderRadius: 0,
                   fontWeight: location.pathname === item.path ? "bold" : "normal",
                 }}
@@ -326,26 +365,34 @@ export default function Header({ onCartClick, cartItems = [] }) {
                 <Typography variant="body2" sx={{ color: 'white', fontWeight: 500 }}>
                   {user.username}
                 </Typography>
-                <IconButton
-                  size="small"
-                  onClick={logout}
-                  sx={{
-                    color: 'white',
-                    ml: 0.5,
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                    }
-                  }}
-                  title="Cerrar sesión"
-                >
-                  <LogoutIcon fontSize="small" />
-                </IconButton>
               </Box>
             )}
 
-            {/* Carrito (icono siempre visible en desktop) */}
+            {/* Botón Admin - Solo para administradores */}
+            {isAdmin() && (
+              <Button
+                component={Link}
+                to="/admin"
+                startIcon={<AdminPanelSettingsIcon />}
+                sx={{
+                  color: '#FFD700',
+                  fontWeight: 'bold',
+                  border: '2px solid #FFD700',
+                  borderRadius: '8px',
+                  px: 2,
+                  '&:hover': {
+                    background: 'rgba(255, 215, 0, 0.1)',
+                    borderColor: '#FFA000'
+                  }
+                }}
+              >
+                Admin
+              </Button>
+            )}
+
+            {/* Carrito - Desktop */}
             <Badge
-              badgeContent={cartItemCount}
+              badgeContent={getCartCount()}
               sx={{
                 "& .MuiBadge-badge": {
                   background: "linear-gradient(45deg, #ff1744, #d50000)",
@@ -357,7 +404,7 @@ export default function Header({ onCartClick, cartItems = [] }) {
                   borderRadius: "10px",
                   border: "2px solid white",
                   boxShadow: "0 2px 6px rgba(255, 23, 68, 0.4)",
-                  animation: cartItemCount > 0 ? "cartPulse 2s infinite" : "none",
+                  animation: getCartCount() > 0 ? "cartPulse 2s infinite" : "none",
                   "@keyframes cartPulse": {
                     "0%": { transform: "scale(1)" },
                     "50%": { transform: "scale(1.15)" },
@@ -371,36 +418,47 @@ export default function Header({ onCartClick, cartItems = [] }) {
               </IconButton>
             </Badge>
 
-            {/* Icono de usuario - Desktop (como última opción) */}
-            <IconButton 
-              color="inherit"
-              onClick={handleUserIconClick}
-              sx={{
-                color: isAuthenticated() 
-                  ? '#66BB6A' // Verde brillante cuando logueado (visible en ambos temas)
-                  : theme.palette.mode === 'dark' 
-                    ? 'rgba(255, 255, 255, 0.8)' // Blanco más visible en modo dark
-                    : 'rgba(255, 255, 255, 0.95)', // Blanco casi opaco en modo light
-                ml: 1,
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  transform: 'scale(1.1)',
-                  color: isAuthenticated() 
-                    ? '#81C784' // Verde más claro al hover cuando logueado
-                    : 'rgba(255, 255, 255, 1)' // Blanco total al hover cuando deslogueado
-                }
-              }}
-              title={isAuthenticated() ? `Cerrar sesión (${user?.username})` : 'Iniciar sesión'}
-            >
-              <PersonIcon />
-            </IconButton>
+            {/* Botón Logout - Desktop */}
+            {isAuthenticated() && (
+              <IconButton
+                color="inherit"
+                onClick={() => {
+                  logout();
+                  navigate("/");
+                }}
+                sx={{
+                  ml: 1,
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                  }
+                }}
+                title="Cerrar sesión"
+              >
+                <LogoutIcon />
+              </IconButton>
+            )}
+
+            {/* Botón Login - Solo si NO está autenticado */}
+            {!isAuthenticated() && (
+              <IconButton
+                color="inherit"
+                onClick={() => navigate("/login")}
+                sx={{
+                  ml: 1,
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                  }
+                }}
+                title="Iniciar sesión"
+              >
+                <PersonIcon />
+              </IconButton>
+            )}
           </Box>
 
           {/* Menú móvil */}
           <Box sx={{ display: { xs: "flex", sm: "none" }, gap: 1, alignItems: 'center' }}>
-            {/* Indicador de usuario móvil con nombre si está logueado */}
+            {/* Indicador de usuario móvil - Solo nombre si está logueado */}
             {isAuthenticated() && (
               <Typography 
                 variant="caption" 
@@ -418,32 +476,6 @@ export default function Header({ onCartClick, cartItems = [] }) {
               </Typography>
             )}
             
-            {/* Icono de usuario móvil - Login/Logout funcional */}
-            <IconButton 
-              color="inherit"
-              onClick={handleUserIconClick}
-              sx={{
-                color: isAuthenticated() 
-                  ? '#66BB6A' // Verde brillante cuando logueado (visible en ambos temas)
-                  : theme.palette.mode === 'dark' 
-                    ? 'rgba(255, 255, 255, 0.8)' // Blanco más visible en modo dark
-                    : 'rgba(255, 255, 255, 0.95)', // Blanco casi opaco en modo light
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-                position: 'relative',
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  transform: 'scale(1.1)',
-                  color: isAuthenticated() 
-                    ? '#81C784' // Verde más claro al hover cuando logueado
-                    : 'rgba(255, 255, 255, 1)' // Blanco total al hover cuando deslogueado
-                }
-              }}
-              title={isAuthenticated() ? `Cerrar sesión (${user?.username})` : 'Iniciar sesión'}
-            >
-              <PersonIcon />
-            </IconButton>
-            
             {/* Menú hamburguesa */}
             <IconButton color="inherit" onClick={handleDrawerToggle}>
               <MenuIcon />
@@ -452,7 +484,6 @@ export default function Header({ onCartClick, cartItems = [] }) {
         </Toolbar>
       </AppBar>
 
-      {/* Drawer móvil */}
       <Drawer
         anchor="right"
         open={mobileOpen}
@@ -467,14 +498,6 @@ export default function Header({ onCartClick, cartItems = [] }) {
       >
         {drawer}
       </Drawer>
-
-      {/* Modal de Login desde Header */}
-      {showLogin && (
-        <Login 
-          onClose={() => setShowLogin(false)}
-          onLoginSuccess={() => setShowLogin(false)}
-        />
-      )}
     </>
   );
 }

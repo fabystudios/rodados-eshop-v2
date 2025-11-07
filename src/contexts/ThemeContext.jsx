@@ -1,41 +1,55 @@
 // src/contexts/ThemeContext.jsx
-import React, { createContext, useState, useEffect } from 'react';
-import { ThemeProvider as MUIThemeProvider } from '@mui/material/styles';
-import { CssBaseline } from '@mui/material';
-import { getTheme } from '../theme';
+import React, { createContext, useState, useMemo, useEffect } from 'react';
+import { ThemeProvider as MuiThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 
+// Exportar el contexto para que otros archivos puedan usarlo
 export const ThemeContext = createContext();
 
+export const useThemeMode = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useThemeMode debe usarse dentro de ThemeProvider');
+  }
+  return context;
+};
+
 export const ThemeProvider = ({ children }) => {
-  // Leer tema inicial desde localStorage o usar 'light' por defecto
   const [mode, setMode] = useState(() => {
+    // Cargar tema desde localStorage
     const savedMode = localStorage.getItem('themeMode');
     return savedMode || 'light';
   });
 
-  // Guardar en localStorage cuando cambie el tema
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode,
+        },
+      }),
+    [mode]
+  );
+
+  const toggleTheme = () => {
+    setMode((prevMode) => {
+      const newMode = prevMode === 'light' ? 'dark' : 'light';
+      localStorage.setItem('themeMode', newMode);
+      console.log('🎨 Theme changed to:', newMode);
+      return newMode;
+    });
+  };
+
   useEffect(() => {
-    localStorage.setItem('themeMode', mode);
+    console.log('🎨 Current theme mode:', mode);
   }, [mode]);
 
-  const toggleMode = () => {
-    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
-  };
-
-  const theme = getTheme(mode);
-
-  const value = {
-    mode,
-    toggleMode,
-    theme
-  };
-
   return (
-    <ThemeContext.Provider value={value}>
-      <MUIThemeProvider theme={theme}>
+    <ThemeContext.Provider value={{ mode, toggleTheme, theme }}>
+      <MuiThemeProvider theme={theme}>
         <CssBaseline />
         {children}
-      </MUIThemeProvider>
+      </MuiThemeProvider>
     </ThemeContext.Provider>
   );
 };
