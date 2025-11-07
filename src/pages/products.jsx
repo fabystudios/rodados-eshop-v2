@@ -1,6 +1,7 @@
 // src/pages/Products.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import tristeImg from "../assets/triste.png";
 import {
   Box,
   Container,
@@ -16,7 +17,6 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import ProductList from "../components/ProductList";
 import ProductCard from "../components/ProductCard";
 import { useCarrito } from "../contexts/CarritoContext";
 import { categoryManager } from "../utils/categoryManager";
@@ -58,9 +58,16 @@ export default function Products() {
 
     // Filtrar por categoría
     if (selectedCategory !== "Todos") {
-      result = result.filter(
-        (product) => product.categoria === selectedCategory
-      );
+      result = result.filter((product) => {
+        const prodCat = (
+          product.categoria ||
+          product.category ||
+          ""
+        ).trim().toLowerCase();
+        const filterCat = selectedCategory.trim().toLowerCase();
+        
+        return prodCat === filterCat;
+      });
     }
 
     // Filtrar por búsqueda
@@ -315,9 +322,15 @@ export default function Products() {
           <Box
             sx={{
               textAlign: "center",
-              py: 8
+              py: 0
             }}
           >
+            <Box
+              component="img"
+              src={tristeImg}
+              alt="No results"
+              sx={{ mb: 2, width: 120, height: 130, objectFit: "contain", mx: "auto" }}
+            />
             <Typography
               variant="h5"
               sx={{
@@ -325,17 +338,20 @@ export default function Products() {
                 mb: 2
               }}
             >
-              😔 No se encontraron productos
+              😔 No se encontraron productos 
             </Typography>
             <Typography
               variant="body1"
               sx={{
                 color: theme.palette.mode === "dark" ? "#808080" : "#999999"
               }}
+              
             >
+              
               Intenta con otra búsqueda o categoría
             </Typography>
           </Box>
+   
         )}
       </Container>
     </Box>

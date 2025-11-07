@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import nopeImg from "../assets/nope.png";
 import {
   Box,
   Container,
@@ -82,7 +83,14 @@ export default function AdminDashboard() {
 
     // Filtrar por categoría
     if (selectedCategory !== 'Todos') {
-      result = result.filter(p => p.categoria === selectedCategory);
+      result = result.filter(p => {
+        const prodCat = (p.category || '').trim().toLowerCase();
+        const filterCat = selectedCategory.trim().toLowerCase();
+        
+        console.log(`🔍 Comparando: "${p.name}" categoria="${prodCat}" vs filtro="${filterCat}"`);
+        
+        return prodCat === filterCat;
+      });
     }
 
     // Filtrar por búsqueda
@@ -93,6 +101,7 @@ export default function AdminDashboard() {
       );
     }
 
+    console.log(`📊 Resultados: ${result.length} de ${products.length} productos`);
     setFilteredProducts(result);
   };
 
@@ -105,10 +114,13 @@ export default function AdminDashboard() {
 
   const handleAddProduct = async (productData) => {
     try {
+      // Normaliza la propiedad a 'category'
+      const dataToSend = { ...productData, category: productData.category || productData.categoria };
+      delete dataToSend.categoria;
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(productData)
+        body: JSON.stringify(dataToSend)
       });
       if (response.ok) {
         loadProducts();
@@ -121,10 +133,13 @@ export default function AdminDashboard() {
 
   const handleUpdateProduct = async (productData) => {
     try {
+      // Normaliza la propiedad a 'category'
+      const dataToSend = { ...productData, category: productData.category || productData.categoria };
+      delete dataToSend.categoria;
       const response = await fetch(`${API_URL}/${editingProduct.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(productData)
+        body: JSON.stringify(dataToSend)
       });
       if (response.ok) {
         loadProducts();
@@ -375,6 +390,39 @@ export default function AdminDashboard() {
           >
             Mostrando {filteredProducts.length} de {products.length} productos
           </Typography>
+          {filteredProducts.length === 0 && (
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                py: 4,
+                gap: 2
+              }}
+            >
+              <img
+                src={nopeImg}
+                alt="No products"
+                style={{
+                  width: 120,
+                  maxWidth: '60%',
+                  height: 'auto',
+                  objectFit: 'contain',
+                  filter: theme.palette.mode === 'dark' ? 'brightness(0.95)' : 'none'
+                }}
+              />
+              <Typography
+                variant="h6"
+                sx={{ color: theme.palette.mode === 'dark' ? '#ffffff' : '#333333', fontWeight: 600 }}
+              >
+                No se encontraron productos en esta categoría
+              </Typography>
+              <Typography variant="body2" sx={{ color: theme.palette.mode === 'dark' ? '#b0b0b0' : '#666666' }}>
+                Ajusta los filtros o agrega nuevos productos.
+              </Typography>
+            </Box>
+          )}
         </Paper>
 
         {/* Products Grid - CSS Grid para cards perfectamente iguales */}
@@ -506,9 +554,9 @@ export default function AdminDashboard() {
                       height: 32
                     }}
                   />
-                  {product.categoria && (
+                  {product.category && (
                     <Chip
-                      label={product.categoria}
+                      label={product.category}
                       size="small"
                       sx={{
                         background: theme.palette.mode === 'dark'

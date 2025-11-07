@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import StyledButton from "../components/StyledButton";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import { useCarrito } from "../contexts/CarritoContext"; // ← Cambiado a "contexts"
+import Chip from "@mui/material/Chip";
 
 import {
   Box,
@@ -43,7 +44,10 @@ export default function ProductDetail() {
   useEffect(() => {
     fetch(`https://68362e14664e72d28e401640.mockapi.io/producto/${id}`)
       .then((res) => res.json())
-      .then((data) => setProduct(data))
+      .then((data) => {
+        console.log("Producto recibido:", data); // <-- Agrego para ver el prod que traigo
+        setProduct(data);
+      })
       .catch((err) => console.error("Error al cargar producto:", err));
   }, [id]);
 
@@ -195,6 +199,25 @@ export default function ProductDetail() {
             >
               {product.name}
             </Typography>
+            {/* Chip de categoría debajo del nombre */}
+              <Typography> 
+                {console.log("Categoria:", product.category)}
+            {product.category && (
+              <Chip
+                label={product.category}
+                size="medium"
+                sx={{
+                  mb: 2,
+                  background: theme.palette.mode === 'dark'
+                    ? 'rgba(187, 134, 252, 0.2)'
+                    : 'rgba(76, 175, 80, 0.1)',
+                  color: theme.palette.mode === 'dark' ? '#bb86fc' : '#2e7d32',
+                  fontWeight: 600,
+                  fontSize: '1rem'
+                }}
+              />
+            )}
+            </Typography> 
             <Typography 
               variant="h5" 
               gutterBottom

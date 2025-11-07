@@ -91,73 +91,74 @@ export default function ProductCard({ product }) {
         </Box>
 
         {/* Contenido */}
-        <CardContent
-          sx={{
-            flexGrow: 1,
-            display: "flex",
-            flexDirection: "column",
-            p: 2
-          }}
-        >
-          <Typography
-            variant="h6"
+          <CardContent
             sx={{
-              color: theme.palette.mode === "dark" ? "#ffffff" : "#333333",
-              fontWeight: "bold",
-              mb: 1,
-              height: "2.6em",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical"
+              flexGrow: 1,
+              display: "flex",
+              flexDirection: "column",
+              p: 2
             }}
           >
-            {product.name}
-          </Typography>
-
-          <Box sx={{ display: "flex", gap: 1, mb: 1.5 }}>
-            <Chip
-              label={`$${parseFloat(product.price).toFixed(2)}`}
+            <Typography
+              variant="h6"
               sx={{
-                background: "linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%)",
-                color: "white",
+                color: theme.palette.mode === "dark" ? "#ffffff" : "#333333",
                 fontWeight: "bold",
-                fontSize: "1rem"
+                mb: 1,
+                height: "2.2em", // ajustado para 2 líneas con lineHeight reducido
+                lineHeight: 1.1, // menor interlineado
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical"
               }}
-            />
-            {product.categoria && (
+            >
+              {product.name}
+            </Typography>
+
+            <Box sx={{ display: "flex", gap: 1, mb: 1.5 }}>
               <Chip
-                label={product.categoria}
-                size="small"
+                label={`$${parseFloat(product.price).toFixed(2)}`}
                 sx={{
-                  background: theme.palette.mode === "dark"
-                    ? "rgba(187, 134, 252, 0.2)"
-                    : "rgba(76, 175, 80, 0.1)",
-                  color: theme.palette.mode === "dark" ? "#bb86fc" : "#2e7d32",
-                  fontWeight: 600
+            background: "linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%)",
+            color: "white",
+            fontWeight: "bold",
+            fontSize: "1rem"
                 }}
               />
-            )}
-          </Box>
-
-          <Typography
-            variant="body2"
+              {product.categoria && (
+                <Chip
+            label={product.categoria}
+            size="small"
             sx={{
-              color: theme.palette.mode === "dark" ? "#b0b0b0" : "#666666",
-              mb: 2,
-              height: "3.6em",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              display: "-webkit-box",
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: "vertical"
+              background: theme.palette.mode === "dark"
+                ? "rgba(187, 134, 252, 0.2)"
+                : "rgba(76, 175, 80, 0.1)",
+              color: theme.palette.mode === "dark" ? "#bb86fc" : "#2e7d32",
+              fontWeight: 600
             }}
-          >
-            {product.descripcion || "Sin descripción"}
-          </Typography>
+                />
+              )}
+            </Box>
 
-          {/* Botones */}
+            <Typography
+              variant="body2"
+              sx={{
+                color: theme.palette.mode === "dark" ? "#b0b0b0" : "#666666",
+                mb: 2,
+                height: "3.6em",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                display: "-webkit-box",
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: "vertical"
+              }}
+            >
+              {product.descripcion || "Sin descripción"}
+            </Typography>
+
+            {/* Botones */}
           <Box sx={{ display: "flex", gap: 1, mt: "auto" }}>
             <Button
               variant="outlined"

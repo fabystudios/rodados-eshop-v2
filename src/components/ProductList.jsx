@@ -74,19 +74,25 @@ export default function ProductList({ onAddToCart, cartItems = [], categoryFilte
 
   // Filtrar productos según la categoría seleccionada
   useEffect(() => {
-    if (categoryFilter === 'todo') {
+    if (categoryFilter === 'todo' || categoryFilter === 'Todos') {
       setFilteredProducts(products);
     } else {
+      const filterCategory = categoryFilter.trim().toLowerCase();
       const filtered = products.filter(product => {
-        const productCategory = product.category?.toLowerCase();
-        const filterCategory = categoryFilter.toLowerCase();
-        
-        // Mapear "adultos" a "adult" para coincidir con la API
-        if (filterCategory === 'adultos') {
-          return productCategory === 'adult';
-        }
-        // Para "kids" funciona directo
-        return productCategory === filterCategory;
+        // Soportar ambas propiedades: categoria y category
+        const prodCat = (
+          product.categoria ||
+          product.category ||
+          product.Category ||
+          product.Categoria ||
+          ''
+        ).trim().toLowerCase();
+
+        // Debug: ver qué categorías tiene cada producto
+        // Puedes quitar este log luego de probar
+        console.log('Filtro:', filterCategory, 'Producto:', product.name, 'Categoria:', prodCat);
+
+        return prodCat === filterCategory;
       });
       setFilteredProducts(filtered);
     }

@@ -7,8 +7,6 @@ const DEFAULT_CATEGORIES = [
   'Scooters',
   'Accesorios',
   'Repuestos',
-  'Adult',
-  'Kids',
   'Otros'
 ];
 
