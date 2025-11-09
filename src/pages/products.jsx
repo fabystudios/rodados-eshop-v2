@@ -1,7 +1,7 @@
 // src/pages/Products.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import tristeImg from "../assets/triste.png";
+import tristeImg from "../assets/triston.png";
 import {
   Box,
   Container,
