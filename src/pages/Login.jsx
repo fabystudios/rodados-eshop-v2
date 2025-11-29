@@ -87,31 +87,44 @@ export default function Login() {
               : '0 8px 32px rgba(0, 0, 0, 0.1)',
           }}
         >
-          <Typography
-            variant="h4"
-            align="center"
-            gutterBottom
-            sx={{
-              color: theme.palette.mode === 'dark' ? '#ffffff' : '#333333',
-              fontWeight: 'bold',
-              mb: 3
-            }}
+          <Box 
+            component="form" 
+            onSubmit={handleSubmit}
+            role="form" // ← ARIA
+            aria-labelledby="login-title" // ← ARIA
           >
-            Iniciar Sesión
-          </Typography>
+            <Typography 
+              id="login-title" // ← ID para ARIA
+              variant="h4" 
+              align="center"
+              gutterBottom
+              sx={{
+                color: theme.palette.mode === 'dark' ? '#ffffff' : '#333333',
+                fontWeight: 'bold',
+                mb: 3
+              }}
+            >
+              Iniciar Sesión
+            </Typography>
 
-          {error && (
-            <Alert severity="error" sx={{ mb: 3 }}>
-              {error}
-            </Alert>
-          )}
+            {error && (
+              <Alert severity="error" sx={{ mb: 3 }}>
+                {error}
+              </Alert>
+            )}
 
-          <Box component="form" onSubmit={handleSubmit}>
             <TextField
               fullWidth
               label="Usuario"
+              name="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              required
+              autoComplete="username" // ← Autocompletar
+              inputProps={{
+                'aria-label': 'Nombre de usuario', // ← ARIA
+                'aria-required': 'true'
+              }}
               margin="normal"
               InputProps={{
                 startAdornment: (
@@ -139,9 +152,17 @@ export default function Login() {
             <TextField
               fullWidth
               label="Contraseña"
+              name="password"
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password" // ← Autocompletar
+              inputProps={{
+                'aria-label': 'Contraseña',
+                'aria-required': 'true',
+                minLength: 3
+              }}
               margin="normal"
               InputProps={{
                 startAdornment: (
@@ -182,6 +203,7 @@ export default function Login() {
               fullWidth
               variant="contained"
               startIcon={<LoginIcon />}
+              aria-label="Ingresar al sistema" // ← ARIA
               sx={{
                 mt: 3,
                 py: 1.5,

@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Box } from "@mui/material";
+import { HelmetProvider } from 'react-helmet-async'; // ← Agregar
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CarritoProvider } from "./contexts/CarritoContext";
@@ -76,12 +77,14 @@ function AppContent() {
 // Componente principal con providers
 export default function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <CarritoProvider>
-          <AppContent />
-        </CarritoProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <HelmetProvider> {/* ← Envolver todo */}
+      <ThemeProvider>
+        <AuthProvider>
+          <CarritoProvider>
+            <AppContent />
+          </CarritoProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </HelmetProvider>
   );
 }

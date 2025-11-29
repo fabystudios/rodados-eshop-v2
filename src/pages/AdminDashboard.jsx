@@ -114,9 +114,6 @@ export default function AdminDashboard() {
 
   const handleAddProduct = async (productData) => {
     try {
-      // Normaliza la propiedad a 'category'
-      const dataToSend = { ...productData, category: productData.category || productData.categoria };
-      delete dataToSend.categoria;
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -125,29 +122,47 @@ export default function AdminDashboard() {
       if (response.ok) {
         loadProducts();
         setOpenDialog(false);
+      } else {
+        console.error('❌ Error al crear producto:', response.status);
+        alert('Error al crear el producto. Intenta nuevamente.'); // ← Mensaje al usuario
       }
     } catch (error) {
-      console.error('Error adding product:', error);
+      console.error('❌ Error de red:', error);
+      alert('Error de conexión. Verifica tu red e intenta nuevamente.'); // ← Mensaje al usuario
     }
+  };
+
+  const handleEdit = (product) => {
+    setEditingProduct(product);
+    setOpenDialog(true);
   };
 
   const handleUpdateProduct = async (productData) => {
     try {
       // Normaliza la propiedad a 'category'
-      const dataToSend = { ...productData, category: productData.category || productData.categoria };
+      const dataToSend = { 
+        ...productData, 
+        category: productData.category || productData.categoria 
+      };
       delete dataToSend.categoria;
+
+      // PUT a MockAPI
       const response = await fetch(`${API_URL}/${editingProduct.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSend)
       });
+
       if (response.ok) {
-        loadProducts();
+        loadProducts(); // Recargar lista
         setOpenDialog(false);
         setEditingProduct(null);
+        console.log('✅ Producto actualizado correctamente');
+      } else {
+        console.error('❌ Error al actualizar producto:', response.status);
       }
     } catch (error) {
-      console.error('Error updating product:', error);
+      console.error('❌ Error de red al actualizar:', error);
     }
   };
 
@@ -157,16 +172,16 @@ export default function AdminDashboard() {
         const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
         if (response.ok) {
           loadProducts();
+          console.log('✅ Producto eliminado correctamente');
+        } else {
+          console.error('❌ Error al eliminar producto:', response.status);
+          alert('Error al eliminar el producto. Intenta nuevamente.');
         }
       } catch (error) {
-        console.error('Error deleting product:', error);
+        console.error('❌ Error de red al eliminar:', error);
+        alert('Error de conexión. Verifica tu red e intenta nuevamente.');
       }
     }
-  };
-
-  const handleEdit = (product) => {
-    setEditingProduct(product);
-    setOpenDialog(true);
   };
 
   const handleCloseDialog = () => {
@@ -238,7 +253,6 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </Grid>
-
           <Grid item xs={12} sm={6} md={4}>
             <Card
               sx={{
@@ -267,7 +281,6 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </Grid>
-
           <Grid item xs={12} sm={6} md={4}>
             <Card
               sx={{
@@ -334,7 +347,6 @@ export default function AdminDashboard() {
               }
             }}
           />
-
           {/* Filtros por categoría */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
             <FilterListIcon sx={{ color: theme.palette.mode === 'dark' ? '#bb86fc' : '#4CAF50' }} />
@@ -347,7 +359,7 @@ export default function AdminDashboard() {
               onClick={() => setOpenCategoryDialog(true)}
               sx={{
                 ml: 'auto',
-                color: '#FFD700',
+                color: theme.palette.mode === 'dark' ? '#bb86fc' : '#4CAF50',
                 border: '1px solid #FFD700',
                 '&:hover': { background: 'rgba(255, 215, 0, 0.1)' }
               }}
@@ -355,7 +367,6 @@ export default function AdminDashboard() {
               Gestionar Categorías
             </Button>
           </Box>
-
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
             {categories.map((cat) => (
               <Chip
@@ -378,15 +389,10 @@ export default function AdminDashboard() {
               />
             ))}
           </Box>
-
           {/* Contador de resultados */}
           <Typography
             variant="body2"
-            sx={{
-              mt: 2,
-              color: theme.palette.mode === 'dark' ? '#b0b0b0' : '#666666',
-              textAlign: 'center'
-            }}
+            sx={{ color: theme.palette.mode === 'dark' ? '#b0b0b0' : '#666666', textAlign: 'center' }}
           >
             Mostrando {filteredProducts.length} de {products.length} productos
           </Typography>
@@ -398,7 +404,8 @@ export default function AdminDashboard() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 py: 4,
-                gap: 2
+                color: theme.palette.mode === 'dark' ? '#b0b0b0' : '#666666',
+                textAlign: 'center'
               }}
             >
               <img
@@ -459,8 +466,8 @@ export default function AdminDashboard() {
                   ? '0 4px 20px rgba(187, 134, 252, 0.15)'
                   : '0 4px 20px rgba(76, 175, 80, 0.15)',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                position: 'relative',
                 overflow: 'hidden',
+                position: 'relative',
                 '&:hover': {
                   transform: 'translateY(-8px)',
                   boxShadow: theme.palette.mode === 'dark'
@@ -511,7 +518,6 @@ export default function AdminDashboard() {
                   }}
                 />
               </Box>
-
               {/* Contenido - flex-grow */}
               <CardContent
                 sx={{
@@ -541,7 +547,6 @@ export default function AdminDashboard() {
                 >
                   {product.name}
                 </Typography>
-
                 {/* Precio y Categoría */}
                 <Box sx={{ display: 'flex', gap: 1, mb: 1.5, flexWrap: 'wrap', minHeight: 32 }}>
                   <Chip
@@ -570,7 +575,6 @@ export default function AdminDashboard() {
                     />
                   )}
                 </Box>
-
                 {/* Descripción - 3 líneas máximo */}
                 <Typography
                   variant="body2"
@@ -583,13 +587,13 @@ export default function AdminDashboard() {
                     textOverflow: 'ellipsis',
                     display: '-webkit-box',
                     WebkitLineClamp: 3,
-                    WebkitBoxOrient: 'vertical'
+                    WebkitBoxOrient: 'vertical',
+                    mb: 1.5
                   }}
                 >
                   {product.descripcion || 'Sin descripción disponible'}
                 </Typography>
               </CardContent>
-
               {/* Botones - 70px fijos al final */}
               <Box
                 sx={{
@@ -628,7 +632,6 @@ export default function AdminDashboard() {
                     <EditIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
-
                 <Tooltip title="Eliminar" arrow>
                   <IconButton
                     onClick={() => handleDeleteProduct(product.id)}
@@ -669,8 +672,7 @@ export default function AdminDashboard() {
                 background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
                 transform: 'scale(1.1)',
                 boxShadow: '0 12px 40px rgba(102, 126, 234, 0.6)'
-              },
-              transition: 'all 0.3s ease'
+              }
             }}
           >
             <AddIcon />
@@ -687,12 +689,7 @@ export default function AdminDashboard() {
         </Dialog>
 
         {/* Dialog Gestión de Categorías */}
-        <Dialog
-          open={openCategoryDialog}
-          onClose={() => setOpenCategoryDialog(false)}
-          maxWidth="sm"
-          fullWidth
-        >
+        <Dialog open={openCategoryDialog} onClose={() => setOpenCategoryDialog(false)} maxWidth="sm" fullWidth>
           <CategoryManager
             onClose={() => {
               setOpenCategoryDialog(false);

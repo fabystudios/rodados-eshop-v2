@@ -28,6 +28,7 @@ export default function ProductCard({ product }) {
   return (
     <Badge
       badgeContent={getCartQuantity(product.id)}
+      aria-label={`${getCartQuantity(product.id)} unidades en el carrito`} // ← ARIA
       sx={{
         "& .MuiBadge-badge": {
           background: "linear-gradient(45deg, #ff6b6b, #ee5a24)",
@@ -43,6 +44,8 @@ export default function ProductCard({ product }) {
       }}
     >
       <Card
+        component="article" // ← Semántica
+        aria-label={`Producto: ${product.name}`} // ← ARIA
         sx={{
           height: 450,
           display: "flex",
@@ -80,7 +83,7 @@ export default function ProductCard({ product }) {
           <CardMedia
             component="img"
             image={product.image || "https://via.placeholder.com/200"}
-            alt={product.name}
+            alt={`Imagen de ${product.name}`} // ← ALT descriptivo
             sx={{
               maxWidth: "90%",
               maxHeight: "90%",
@@ -164,7 +167,8 @@ export default function ProductCard({ product }) {
               variant="outlined"
               fullWidth
               startIcon={<VisibilityIcon />}
-              onClick={() => navigate(`/productos/${product.categoria || 'general'}/${product.id}`)}
+              onClick={() => navigate(`/productos/${product.category || 'general'}/${product.id}`)}
+              aria-label={`Ver detalles de ${product.name}`} // ← ARIA
               sx={{
                 borderColor: theme.palette.mode === "dark" ? "#bb86fc" : "#4CAF50",
                 color: theme.palette.mode === "dark" ? "#bb86fc" : "#4CAF50",
@@ -183,6 +187,7 @@ export default function ProductCard({ product }) {
               fullWidth
               startIcon={<AddShoppingCartIcon />}
               onClick={() => addToCart(product)}
+              aria-label={`Agregar ${product.name} al carrito`} // ← ARIA
               sx={{
                 background: "linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%)",
                 "&:hover": {

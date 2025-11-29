@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚲✨ **RODADOS eSHOP v2.0** ✨🚲
+# 🚲✨ **RODADOS eSHOP** ✨🚲
 ### *La Revolución del eCommerce con Glassmorphism*
 > 🎉 **¡Ahora disponible en GitHub Pages!**
 
@@ -962,7 +962,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 💡 SIN GARANTÍA - ÚSALO BAJO TU PROPIO RIESGO
-````
+```
 
 ---
 

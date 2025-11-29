@@ -269,6 +269,9 @@ export default function Header({ onCartClick }) {
     <>
       <AppBar
         position="sticky"
+        component="nav" // ← Semántica
+        role="navigation" // ← ARIA
+        aria-label="Navegación principal" // ← ARIA
         sx={{
           background:
             theme.palette.mode === "dark"
@@ -291,6 +294,7 @@ export default function Header({ onCartClick }) {
           <Box
             component={Link}
             to="/"
+            aria-label="Ir a página de inicio" // ← ARIA
             sx={{
               display: "flex",
               alignItems: "center",
@@ -413,7 +417,11 @@ export default function Header({ onCartClick }) {
                 }
               }}
             >
-              <IconButton color="inherit" onClick={onCartClick}>
+              <IconButton 
+                color="inherit" 
+                onClick={onCartClick}
+                aria-label={`Abrir carrito con ${getCartCount()} productos`} // ← ARIA
+              >
                 <ShoppingCartIcon />
               </IconButton>
             </Badge>
@@ -422,16 +430,8 @@ export default function Header({ onCartClick }) {
             {isAuthenticated() && (
               <IconButton
                 color="inherit"
-                onClick={() => {
-                  logout();
-                  navigate("/");
-                }}
-                sx={{
-                  ml: 1,
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                  }
-                }}
+                onClick={() => { logout(); navigate("/"); }}
+                aria-label={`Cerrar sesión de ${user?.username}`} // ← ARIA
                 title="Cerrar sesión"
               >
                 <LogoutIcon />
